@@ -3,7 +3,7 @@
 涵盖：装饰器、生成器、迭代器、面向对象、上下文管理器
 """
 
-from functools import wraps, reduce, lru_cache
+from functools import wraps
 import time
 
 
@@ -368,6 +368,9 @@ for key, group in groupby(data, key=lambda x: x[0]):
     print(f"{key}: {list(group)}")
 
 # @lru_cache：函数结果缓存
+
+from functools import lru_cache
+
 @lru_cache(maxsize=128)
 def expensive_func(n):
     """模拟耗时计算"""

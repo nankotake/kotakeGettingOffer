@@ -4,6 +4,9 @@
 """
 
 # ==================== 1. 基础数据类型 ====================
+import heapq
+
+
 print("=== 基础数据类型 ===")
 a: int = 10          # 动态类型，但可以加类型注解（Python 3.6+）
 b: float = 3.14
@@ -185,3 +188,121 @@ for i, ch in enumerate("abcd", start=1):  # start 指定起始值
 keys = ["name", "age", "city"]
 values = ["Alice", 25, "北京"]
 print(dict(zip(keys, values)))  # 构建字典
+
+# ==================== 8. 集合 set（非常重要！） ====================
+print("\n=== 集合 set ===")
+
+# 集合是无序的、不重复的元素集合，底层用哈希表实现，O(1) 查找
+# 类似 C++ 的 unordered_set
+
+# 8.1 创建集合
+empty_set = set()           # 空集合（注意：{} 是空字典！）
+numbers = {1, 2, 3, 4, 5}
+print(f"集合: {numbers}")
+
+# 从列表创建集合（去重 — 面试高频！）
+dup_list = [1, 2, 2, 3, 3, 3, 4]
+unique = set(dup_list)
+print(f"列表去重: {unique}")           # {1, 2, 3, 4}
+print(f"转回列表: {list(unique)}")     # 但顺序不一定保持
+
+# 8.2 集合推导式
+squares_set = {x**2 for x in range(5)}
+print(f"集合推导式: {squares_set}")    # {0, 1, 4, 9, 16}
+
+# 8.3 基本操作（增删查）
+s = {1, 2, 3}
+s.add(4)                # 添加元素
+print(f"add(4): {s}")
+
+s.remove(2)             # 删除元素（不存在会抛 KeyError）
+print(f"remove(2): {s}")
+
+s.discard(10)           # 安全删除（不存在也不会报错）
+x = s.pop()             # 随机弹出一个元素并返回
+print(f"pop: {x}, 剩余: {s}")
+
+s.clear()               # 清空集合
+print(f"clear后: {s}")
+
+# 8.4 成员检查（O(1) 效率，面试高频！）
+fruits = {"apple", "banana", "orange", "grape"}
+print(f"'apple' in set: {'apple' in fruits}")    # True
+print(f"'watermelon' not in set: {'watermelon' not in fruits}")  # True
+
+# vs 列表查找（列表是 O(n)，集合是 O(1)）
+big_list = list(range(1000000))
+big_set = set(range(1000000))
+import time
+
+start = time.time()
+print(999999 in big_list)   # 列表查找
+print(f"列表查找耗时: {time.time() - start:.4f}s")
+
+start = time.time()
+print(999999 in big_set)    # 集合查找
+print(f"集合查找耗时: {time.time() - start:.4f}s")
+
+# 8.5 集合运算（面试必考！）
+a = {1, 2, 3, 4, 5}
+b = {4, 5, 6, 7, 8}
+
+# 并集（Union）：a ∪ b
+print(f"并集 a | b: {a | b}")           # {1,2,3,4,5,6,7,8}
+print(f"union(): {a.union(b)}")
+
+# 交集（Intersection）：a ∩ b
+print(f"交集 a & b: {a & b}")           # {4,5}
+print(f"intersection(): {a.intersection(b)}")
+
+# 差集（Difference）：a - b（在 a 中但不在 b 中的元素）
+print(f"差集 a - b: {a - b}")           # {1,2,3}
+print(f"difference(): {a.difference(b)}")
+
+# 对称差集（Symmetric Difference）：(a ∪ b) - (a ∩ b)
+print(f"对称差集 a ^ b: {a ^ b}")       # {1,2,3,6,7,8}
+print(f"symmetric_difference(): {a.symmetric_difference(b)}")
+
+# 8.6 子集 / 超集判断
+x = {1, 2, 3}
+y = {1, 2, 3, 4, 5}
+print(f"x ⊆ y: {x.issubset(y)}")       # True
+print(f"y ⊇ x: {y.issuperset(x)}")     # True
+print(f"是否不相交: {x.isdisjoint({6, 7})}")  # True
+
+# 8.7 frozenset（不可变集合，可作为字典的键）
+frozen = frozenset([1, 2, 3])
+# frozen.add(4)  # 会报错！frozenset 不可变
+d = {frozen: "这是一个不可变集合的键"}
+print(f"frozenset作为字典键: {d}")
+
+# 8.8 集合实战面试题
+print("\n--- 集合实战 ---")
+
+# 题1：两个数组的交集（LeetCode 349）
+def intersection(nums1, nums2):
+    return list(set(nums1) & set(nums2))
+
+print(f"数组交集: {intersection([1,2,2,1], [2,2])}")  # [2]
+
+# 题2：找数组中唯一的元素（其他元素都出现两次）
+def single_number(nums):
+    return list(set(nums))  # 仅演示，实际找唯一要用异或
+
+# 题3：字符串中不同字符的数量
+def count_unique_chars(s):
+    return len(set(s))
+
+print(f"不同字符数 'hello': {count_unique_chars('hello')}")  # 4 (h,e,l,o)
+
+# 题4：判断两个字符串是否是字母异位词（anagram）
+def is_anagram(s1, s2):
+    return set(s1) == set(s2) and len(s1) == len(s2)
+    # 更精确应该用 Counter，但集合可以快速判断
+
+# 题5：列表中是否有重复元素（面试高频）
+def has_duplicate(nums):
+    return len(nums) != len(set(nums))
+
+print(f"[1,2,3,1] 有重复: {has_duplicate([1,2,3,1])}")  # True
+print(f"[1,2,3] 有重复: {has_duplicate([1,2,3])}")     # False
